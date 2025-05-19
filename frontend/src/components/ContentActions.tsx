@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
 import { ClipboardDocumentIcon, ShareIcon, BookmarkIcon } from '@heroicons/react/24/outline';
-import type { SavedContent } from '@/types';
+import type { ContentFormat, Mood, SavedContent } from '@/types';
 
 interface ContentActionsProps {
   content: string;
@@ -49,9 +49,9 @@ export function ContentActions({ content, trend, format, audience, mood, onSave 
         id: crypto.randomUUID(),
         content,
         trend,
-        format: format as any,
+        format: format as ContentFormat,
         audience,
-        mood: mood as any,
+        mood: mood as Mood,
         createdAt: new Date().toISOString(),
       };
       onSave(savedContent);

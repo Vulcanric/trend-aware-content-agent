@@ -66,7 +66,7 @@ export default function Home() {
         if (data.trends.length > 0) {
           setSelectedTrend(data.trends[0]);
         }
-      } catch (error) {
+      } catch {
         toast.error('Failed to fetch trends');
       }
     };
@@ -133,7 +133,7 @@ export default function Home() {
       });
       setContent(response.content);
       toast.success('Content generated successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to generate content');
     } finally {
       setIsLoading(false);
