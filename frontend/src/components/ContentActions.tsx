@@ -19,7 +19,7 @@ export function ContentActions({ content, trend, format, audience, mood, onSave 
     try {
       await navigator.clipboard.writeText(content);
       toast.success('Content copied to clipboard!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to copy content');
     }
   };
@@ -56,7 +56,7 @@ export function ContentActions({ content, trend, format, audience, mood, onSave 
       };
       onSave(savedContent);
       toast.success('Content saved successfully!');
-    } catch (error) {
+    } catch {
       toast.error('Failed to save content');
     } finally {
       setIsSaving(false);

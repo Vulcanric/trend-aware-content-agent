@@ -8,7 +8,7 @@ import { ContentActions } from '@/components/ContentActions';
 import { ContentHistory } from '@/components/ContentHistory';
 import { getTrends, generateContent } from '@/lib/api';
 import type { ContentFormat, Mood, SavedContent } from '@/types';
-import { XMarkIcon, FireIcon, SparklesIcon, ChevronLeftIcon, SunIcon, MoonIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ChevronLeftIcon, SunIcon, MoonIcon, ClockIcon } from '@heroicons/react/24/outline';
 
 const CONTENT_FORMATS: { value: ContentFormat; label: string }[] = [
   { value: 'Blog Post', label: 'Blog Post' },
