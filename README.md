@@ -17,7 +17,7 @@ Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam
 
 ## 🚀 Live Demo
 
-🎥 Watch a short demo video: [coming soon](#)
+🎥 Watch a short demo video: [my demo video](https://share.descript.com/view/DPOkeMpPawu)
 
 ---
 
@@ -92,7 +92,7 @@ Visit:
 ## 📨 Submission
 - 📝 **DEV post**: [my DEV post link here]
 - 🌐 **GitHub repo**: [https://github.com/vulcanric/trend-aware-content-agent.git](https://github.com/vulcanric/trend-aware-content-agent.git)
-- 🎥 **Demo video**: [my demo video]
+- 🎥 **Demo video**: [my demo video][https://share.descript.com/view/DPOkeMpPawu]
 
 ## 📄 License
 MIT
