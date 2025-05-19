@@ -2,7 +2,7 @@
 
 **A real-time AI agent that discovers trending topics and turns them into content ideas.**
 
-Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam/join-the-bright-data-real-time-ai-agents-challenge-3000-in-prizes-cog), this tool helps creators, marketers, and researchers stay ahead of the curve by extracting trending discussions from the web and using an offline AI model to suggest content ideas instantly.
+Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam/join-the-bright-data-real-time-ai-agents-challenge-3000-in-prizes-cog), this tool helps creators, marketers, and researchers stay ahead of the curve by extracting trending discussions from the web and using an AI model to suggest content ideas instantly.
 
 ---
 
@@ -11,7 +11,7 @@ Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam
 1. **Discover**: Scans top Reddit posts and YouTube videos for trending keywords using Bright Data's powerful proxies and web unlocker.
 2. **Access**: Navigates dynamic, JavaScript-heavy pages using Bright Data's MCP.
 3. **Extract**: Pulls structured titles and summaries from posts and videos.
-4. **Interact**: Interact with pages like a human (clicks, scrolls, loads comments). Feeds trends to a local LLM to generate content ideas — entirely offline using [Ollama](https://ollama.com/).
+4. **Interact**: Interact with pages like a human (clicks, scrolls, loads comments). Feeds trends to a LLM to generate content.
 
 ---
 
@@ -35,9 +35,9 @@ Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam
 
 | Layer | Tech |
 | --- | --- |
-| Frontend | Streamlit |
+| Frontend | Next.js |
 | Backend | FastAPI |
-| AI Engine | Ollama + Mistral (fully offline) |
+| AI Engine | Llama 4 |
 | Data Layer | Bright Data MCP + Reddit + Youtube |
 | Deployment | Docker + Docker Compose |
 
@@ -50,21 +50,18 @@ Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam
 git clone https://github.com/vulcanric/trend-aware-content-agent.git
 cd trend-aware-content-agent
 ```
-### 2. Pull the AI model (optional if running locally)
-```bash
-ollama pull mistral
-```
-### 3. Create `.env` file
+### 2. Create `.env` file
 ```env
-BRIGHT_DATA_USERNAME=your_username
-BRIGHT_DATA_PASSWORD=your_password
+BRIGHT_DATA_TOKEN=your_token
+BRIGHT_DATA_PROXY_ZONE=your_zone_id
+TOGETHER_API_KEY=your_together_key
 ```
-### 4. Run with Docker Compose
+### 3. Run with Docker Compose
 ```bash
 docker-compose up --build
 ```
 Visit:
-- Frontend: http://localhost:8501
+- Frontend: http://localhost:3000
 - Backend: http://localhost:8000/docs
 
 ## 📦 Project Structure
@@ -72,13 +69,17 @@ Visit:
 .
 ├── backend/
 |   ├── main.py
-|   ├── ai_engine.py
+|   ├── agents.py
+|   ├── bright_data.py
+|   ├── trend_scrapers.py
+|   ├── models.py
 |   └── ...
 ├── frontend/
-|   └── streamlit_app.py
+|   ├── next.config.ts
+|   └── ...
 ├── docker-compose.yml
 ├── requirements.txt
-├── .env.example
+├── .env
 └── README.md
 ```
 
