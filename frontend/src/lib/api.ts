@@ -1,7 +1,9 @@
 import axios from 'axios';
+import 'dotenv/config';
 import type { Trend, GenerateContentRequest, GenerateContentResponse } from '@/types';
 
-const API_BASE_URL = 'http://localhost:8000/api';
+
+const API_BASE_URL = process.env.API_BASE_URL;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
