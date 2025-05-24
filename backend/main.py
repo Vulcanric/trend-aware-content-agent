@@ -31,8 +31,8 @@ async def get_trends():
     """ Get current topics that are trending on the internet
     """
     sources = [
-        ("https://www.reddit.com/r/all/hot.json?limit=30", get_reddit_trending, False),
-        ("https://www.youtube.com/feed/trending", get_youtube_trending, False)
+        ("https://www.reddit.com/r/all/hot.json?limit=30", get_reddit_trending),
+        ("https://www.youtube.com/feed/trending", get_youtube_trending)
     ]
     async with AsyncClient() as session:
         tasks = [scrape_with_bright_data(session, *trend_source) for trend_source in sources]
