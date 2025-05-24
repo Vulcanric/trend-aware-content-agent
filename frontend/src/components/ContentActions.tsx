@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'react-hot-toast';
-import { ClipboardDocumentIcon, ShareIcon, BookmarkIcon } from '@heroicons/react/24/outline';
+import { ShareIcon, BookmarkIcon } from '@heroicons/react/24/outline';
 import type { ContentFormat, Mood, SavedContent } from '@/types';
 
 interface ContentActionsProps {
@@ -18,7 +18,7 @@ export function ContentActions({ content, trend, format, audience, mood, onSave 
   const [isCopied, setIsCopied] = useState(false);
   const [isShared, setIsShared] = useState(false);
 
-  let DURATION = 2000; // Duration for displaying action state: 2s
+  const DURATION = 2000; // Duration for displaying action feedback: 2s
 
   const handleCopy = async () => {
     try {
@@ -94,7 +94,7 @@ export function ContentActions({ content, trend, format, audience, mood, onSave 
         className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
       >
         <ShareIcon className="w-5 h-5" />
-        Share
+        {isShared ? 'Shared!' : 'Share'}
       </button>
       <button
         onClick={handleSave}
