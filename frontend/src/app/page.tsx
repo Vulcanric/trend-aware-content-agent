@@ -1,14 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, use } from 'react';
 import { toast } from 'react-hot-toast';
 import { Select } from '@/components/Select';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { ContentActions } from '@/components/ContentActions';
 import { ContentHistory } from '@/components/ContentHistory';
 import { getTrends, generateContent } from '@/lib/api';
 import type { ContentFormat, Mood, SavedContent } from '@/types';
-import { XMarkIcon, ChevronLeftIcon, SunIcon, MoonIcon, ClockIcon } from '@heroicons/react/24/outline';
+import { XMarkIcon, ChevronLeftIcon, ChevronRightIcon, SunIcon, MoonIcon, ClockIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
 
 const CONTENT_FORMATS: { value: ContentFormat; label: string }[] = [
   { value: 'Blog Post', label: 'Blog Post' },
@@ -50,7 +51,9 @@ export default function Home() {
   const [audience, setAudience] = useState<string>('');
   const [mood, setMood] = useState<Mood>('Professional');
   const [content, setContent] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingTrends, setIsFetchingTrends] = useState(false)
+  const [isGeneratingContent, setIsGeneratingContent] = useState(false);
+  const [showTrendSidebar, setShowTrendSidebar] = useState(true);
   const [showContentSidebar, setShowContentSidebar] = useState(true);
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -58,18 +61,22 @@ export default function Home() {
   const [showHistory, setShowHistory] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
-  useEffect(() => {
-    const fetchTrends = async () => {
-      try {
-        const data = await getTrends();
-        setTrends(data.trends);
-        if (data.trends.length > 0) {
-          setSelectedTrend(data.trends[0]);
-        }
-      } catch {
-        toast.error('Failed to fetch trends');
+  const fetchTrends = async () => {
+    setIsFetchingTrends(true);
+    try {
+      const data = await getTrends();
+      setTrends(data.trends);
+      if (data.trends.length > 0) {
+        setSelectedTrend(data.trends[0]);
       }
-    };
+    } catch {
+      toast.error('Failed to fetch trends');
+    } finally {
+      setIsFetchingTrends(false);
+    }
+  };
+
+  useEffect(() => {
     fetchTrends();
   }, []);
 
@@ -123,7 +130,8 @@ export default function Home() {
       return;
     }
 
-    setIsLoading(true);
+    setContent('')
+    setIsGeneratingContent(true);
     try {
       const response = await generateContent({
         trend: customTrend || selectedTrend,
@@ -131,12 +139,20 @@ export default function Home() {
         audience,
         mood,
       });
-      setContent(response.content);
+
+      setIsGeneratingContent(false)
+      // Animate content display
+      response.content.split('\n').forEach((line) => {
+        setTimeout(
+          () => setContent(prev => prev + `${line}\n`),
+          1000
+        );
+      });
       toast.success('Content generated successfully!');
     } catch {
       toast.error('Failed to generate content');
     } finally {
-      setIsLoading(false);
+      setIsGeneratingContent(false);
     }
   };
 
@@ -154,61 +170,67 @@ export default function Home() {
     setFormat(content.format);
     setAudience(content.audience);
     setMood(content.mood);
+    setShowHistory(false);
     setShowContentSidebar(true);
   };
 
   return (
-    <main className="h-screen p-0 flex dark:bg-gray-900 dark:text-white overflow-x-hidden">
-      {/* Dark mode toggle - moved to top-right corner */}
-      <button
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className="fixed top-4 right-4 z-100 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
-        aria-label="Toggle dark mode"
-      >
-        {isDarkMode ? (
-          <SunIcon className="w-6 h-6 text-yellow-500" />
-        ) : (
-          <MoonIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
-        )}
-      </button>
-
+    <>
+    <header className="h-15 border-b border-gray-300 dark:border-gray-200 relative">
+        {/* Dark mode toggle - moved to top-right corner */}
+        <button
+          onClick={() => setIsDarkMode(!isDarkMode)}
+          className="fixed top-4 right-4 z-100 p-2 rounded-md bg-gray-50/50 hover:bg-gray-100/80 focus:bg-gray-300 shadow-lg transition-colors duration-300"
+          aria-label="Toggle dark mode"
+        >
+          {isDarkMode ? (
+            <SunIcon className="size-5 text-orange-500" />
+          ) : (
+            <MoonIcon className="size-5 text-gray-900 dark:text-gray-300" />
+          )}
+        </button>
+    </header>
+    <main className="h-[90%] p-0 flex dark:bg-gray-900 dark:text-white overflow-x-hidden bg-gradient-to-b from-[#E1E3E6] to-white">
       {/* History toggle - moved to top-right corner */}
       <button
         onClick={() => setShowHistory(!showHistory)}
-        className="fixed top-4 right-16 z-100 p-2 rounded-full bg-white dark:bg-gray-800 shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-gray-200 dark:border-gray-700"
+        className="fixed top-4 left-16 z-100 p-2 rounded-md bg-gray-50/50 hover:bg-gray-100/80 focus:bg-gray-300 shadow-lg transition-colors duration-300"
         aria-label="Toggle history"
       >
-        <ClockIcon className="w-6 h-6 text-gray-700 dark:text-gray-300" />
+        <ClockIcon className="size-5 dark:text-white text-gray-700" />
       </button>
 
-      {/* Animated dispersed fire/ember background */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        {/* Center ember */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[60vw] h-[40vh] bg-gradient-to-t from-orange-500/40 via-yellow-400/20 to-transparent rounded-full blur-[80px] animate-pulse"></div>
-        {/* Bottom ember */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[80vw] h-[30vh] bg-gradient-to-t from-orange-500/60 via-yellow-400/30 to-transparent rounded-full blur-3xl animate-pulse"></div>
-        {/* Left ember */}
-        <div className="absolute bottom-10 left-0 w-[30vw] h-[30vh] bg-gradient-to-tr from-orange-400/40 via-yellow-300/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
-        {/* Right ember */}
-        <div className="absolute bottom-10 right-0 w-[30vw] h-[30vh] bg-gradient-to-tl from-orange-400/40 via-yellow-300/20 to-transparent rounded-full blur-2xl animate-pulse"></div>
-      </div>
-      <div className="w-full flex flex-col md:flex-row gap-0 h-full min-h-0">
+      <div className="w-full flex gap-0 h-full min-h-0">
         {/* Sidebar (Left) */}
-        <aside className="w-full md:w-1/4 bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-r-xl shadow p-4 md:h-screen md:overflow-y-auto md:sticky md:top-0 md:left-0 md:rounded-none md:rounded-r-xl border-r border-gray-200 dark:border-gray-700">
-          <div className="pl-2 py-4 bg-gray-100 dark:bg-gray-700 flex items-center gap-2 rounded-lg sticky top-0 z-10">
+        <aside
+          className={`w-full md:w-75 h-full bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow md:sticky md:top-0 md:left-0 md:rounded-none
+            md:rounded-r-xl border-r border-gray-500 dark:border-gray-700 fixed z-50
+            ${showTrendSidebar ? 'translate-x-0' : '-translate-x-full md:-translate-x-full'}`
+          }
+        >
+          {/* Trends Sidebar toggle button */}
+          <button
+            className="absolute top-1/2 -translate-y-1/2 -right-6 z-[100] flex items-center justify-center bg-white dark:bg-gray-600 border border-gray-300 shadow-lg rounded-full p-2 hover:bg-gray-200 dark:hover:bg-gray-800 transition-all"
+            onClick={() => setShowTrendSidebar(!showTrendSidebar)}
+            aria-label="Toggle trends sidebar"
+          >
+            <span className='sr-only'>Show current trends</span>
+            <ChevronRightIcon className={`w-6 h-6 text-gray-700 dark:text-gray-300 ${showTrendSidebar && 'rotate-180'}`} />
+          </button>
+          <div className="pl-2 py-5 bg-gray-500 dark:bg-gray-700 flex items-center gap-2 sticky top-0 z-10">
             <h2 className="text-xl font-extrabold shrink-0 flex items-center gap-2">
-              <span>⚡</span>
-              <span className="bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">Real-Time Trends</span>
+              <span>🔥</span>
+              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">Trending Topics</span>
             </h2>
           </div>
-          <div>
-            <ul className="space-y-2">
+          <div className="p-4 h-3/4">
+            <ul className="h-full space-y-1 overflow-y-scroll">
               {trends.map((trend) => (
                 <li key={trend}>
                   <button
                     type="button"
-                    className={`hover:border border-gray-200 w-full text-left px-4 py-2 rounded-lg transition-colors text-base
-                      ${selectedTrend === trend ? 'bg-gray-200 text-gray-900 font-semibold' : 'hover:bg-gray-100 text-gray-700'}`}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition-colors text-base
+                      ${selectedTrend === trend ? 'text-gray-900 font-semibold' : 'hover:bg-gray-300 text-gray-700'}`}
                     onClick={() => {
                       setSelectedTrend(trend);
                       setCustomTrend(trend);
@@ -220,23 +242,43 @@ export default function Home() {
               ))}
             </ul>
           </div>
+          <div className='p-4'>
+            <button
+              className='flex items-center justify-center gap-2 p-3 font-medium rounded-lg w-full bg-gradient-to-r from-orange-500 to-yellow-500
+              hover:from-yellow-500 hover:to-orange-500 disabled:cursor-not-allowed cursor-pointer transition-all duration-300'
+              onClick={async () => await fetchTrends()}
+              disabled={isFetchingTrends}
+            >
+              {isFetchingTrends ? (
+                <>
+                <span className='border-2 border-t-transparent border-white size-4 rounded-full animate-spin' />
+                Refreshing...
+                </>
+              ) : (
+                <>
+                <ArrowPathIcon className='size-5'/>
+                Refresh
+                </>
+              )}
+            </button>
+          </div>
         </aside>
         {/* Main Content */}
-        <div className="flex-1 max-w-2xl mx-auto w-full flex flex-col justify-center relative" style={{ minHeight: '100vh' }}>
-          <div className="text-center mb-4 mt-4">
-            <h1 className="text-4xl font-extrabold tracking-tight flex items-center gap-2 mb-2">
+        <div className="flex-1 max-w-2xl mx-auto w-full flex flex-col px-3 justify-center relative" style={{ minHeight: '100vh' }}>
+          {/* <div className="text-center mb-4 mt-4">
+            <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight flex items-center gap-2 mb-2">
               <span className="relative inline-block">
                 <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-15 h-14 bg-gradient-to-t from-orange-500/100 to-yellow-300/0 rounded-full blur-sm animate-pulse duration-1000"></span>
                 <span className="inline-block align-middle">🔥</span>
               </span>
-              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent font-extrabold relative z-10">
+              <span className="bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent relative z-10">
                   Trend-Aware Content Generator
               </span>
             </h1>
             <p className="text-lg text-gray-400 dark:text-gray-400">
               Generate engaging content based on trending topics
             </p>
-          </div>
+          </div> */}
           <form onSubmit={handleSubmit} className="space-y-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur p-6 rounded-xl shadow-2xl">
             <div>
               <label className="block text-base font-medium text-gray-700 dark:text-gray-300 mb-1">OR Enter Custom Topic</label>
@@ -247,7 +289,7 @@ export default function Home() {
                   setCustomTrend(e.target.value);
                   setSelectedTrend('');
                 }}
-                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-lg text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 focus:outline-none focus:border-orange-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-lg text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700"
                 placeholder="Enter your custom trend"
               />
             </div>
@@ -265,7 +307,7 @@ export default function Home() {
                 type="text"
                 value={audience}
                 onChange={(e) => setAudience(e.target.value)}
-                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-lg text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700 focus:outline-none focus:border-orange-500"
+                className="mt-1 block w-full rounded-md border border-gray-300 dark:border-gray-600 px-4 py-3 text-lg text-gray-500 dark:text-gray-400 bg-white dark:bg-gray-700"
                 placeholder="e.g., startup founders, tech enthusiasts"
               />
             </div>
@@ -277,40 +319,57 @@ export default function Home() {
             />
             <button
               type="submit"
-              disabled={isLoading}
-              className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
+              disabled={isGeneratingContent}
+              className="w-full flex justify-center items-center py-3 px-4 gap-3 border border-transparent rounded-lg shadow-sm text-lg font-medium
+              bg-gradient-to-r from-orange-500 to-yellow-500 hover:from-yellow-500 hover:to-orange-500 disabled:opacity-70 disabled:cursor-not-allowed transition-all duration-200"
             >
-              {isLoading && (
-                <svg
-                  className="animate-spin h-5 w-5 mr-2 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
+              {isGeneratingContent ? (
+                <span className='text-2xl animate-pulse duration-500'>✨</span>
+              ) : (
+                <>
+                <span className='text-xl'>✨</span>
+                Generate Content
+                </>
               )}
-              {isLoading ? 'Generating...' : 'Generate Content'}
+              {/* {isGeneratingContent ? 'Generating...' : '✨ Generate Content'} */}
             </button>
           </form>
+          {/* Display generated content for mobile devices */}
+          {
+            (isGeneratingContent || content) && (
+              <>
+              <br />
+              <div className='w-full flex md:hidden gap-1'>
+                <span className='text-2xl'>✨</span>
+                <div className='prose max-w-full pt-1 text-lg dark:prose-invert flex flex-col'>
+                  {
+                    isGeneratingContent ? (
+                      <span className='animate-pulse'>Hold up! I'm crunching on the latest data to give you the best content.</span>
+                    ) : content && (
+                      <>
+                      <div className="w-[90%] whitespace-pre-wrap overflow-x-scroll bg-gray-100/10 dark:bg-gray-800/10 backdrop-blur text-gray-700 text-base dark:text-gray-300"><Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown></div>
+                      <ContentActions
+                          content={content}
+                          trend={customTrend || selectedTrend}
+                          format={format}
+                          audience={audience}
+                          mood={mood}
+                          onSave={handleSaveContent}
+                      />
+                      </>
+                    )
+                  }
+                </div>
+              </div>
+              </>
+            )            
+          }
         </div>
 
         {/* Sidebar (Right) for Generated Content */}
         <aside
-          className={`hidden md:flex flex-col md:flex-row md:w-1/4 bg-white/80 dark:bg-gray-800/80 backdrop-blur rounded-l-xl shadow p-4 md:h-screen md:sticky md:top-0 md:right-0 border-l border-gray-200 dark:border-gray-700
-            transition-transform duration-500 ease-in-out relative ${showHistory ? "z-0" : "z-50"}
+          className={`hidden md:flex flex-col md:flex-row md:w-1/4 bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow md:h-full md:sticky md:top-0 md:right-0 border-l border-gray-500
+            transition-transform duration-500 ease-in-out relative z-50
             ${sidebarOpen ? 'translate-x-0' : 'translate-x-[95%]'}`}
         >
           {/* Show content sidebar button - attached to sidebar */}
@@ -325,19 +384,21 @@ export default function Home() {
 
           {sidebarVisible && (
             <div className="flex flex-col h-full w-full">
-              <div className="flex items-center justify-between pl-2 py-4 bg-gray-300 dark:bg-gray-700 mb-2 rounded-lg sticky top-0 z-10">
+              <div className="flex items-center justify-between pl-5 py-5 bg-gray-500 dark:bg-gray-700 mb-2 sticky top-0 z-10">
                 <div className="flex items-center gap-2">
                   <span className="text-xl">✨</span>
-                  <h2 className="text-xl font-extrabold shrink-0 bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">Generated Content</h2>
+                  <h2 className="text-xl font-extrabold shrink-0 bg-gradient-to-r from-orange-500 to-yellow-500 bg-clip-text text-transparent">Generated Content</h2>
                 </div>
               </div>
-              <br />
-              <div className="prose max-w-none text-lg dark:prose-invert h-[70vh]">
-                {isLoading ? (
-                  <div className="text-blue-600 dark:text-blue-400 font-medium">Generating...</div>
+              {/* <br /> */}
+              <div className="prose max-w-none text-lg dark:prose-invert h-full p-4 flex flex-col items-center relative">
+                {isGeneratingContent ? (
+                  <div className="text-center text-gray-500 dark:text-gray-500 font-small absolute top-1/2 flex flex-col animate-pulse">
+                    <span>Hold up!</span>AI is crunching on the latest data to give you the best content.
+                  </div>
                 ) : content ? (
                   <>
-                    <div className="h-full overflow-y-scroll bg-gray-100/10 dark:bg-gray-800/10 backdrop-blur rounded-lg p-4 text-gray-700 text-base dark:text-gray-300"><Markdown>{content}</Markdown></div>
+                    <div className="w-full h-[70%] whitespace-pre-wrap overflow-y-scroll bg-gray-100/10 dark:bg-gray-800/10 backdrop-blur rounded-lg p-4 text-gray-700 text-base dark:text-gray-300"><Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown></div>
                     <ContentActions
                       content={content}
                       trend={customTrend || selectedTrend}
@@ -348,7 +409,7 @@ export default function Home() {
                     />
                   </>
                 ) : (
-                  <div className="text-gray-400 dark:text-gray-500">No content to display</div>
+                  <div className="text-gray-400 dark:text-gray-500 absolute top-1/2">No content to display</div>
                 )}
               </div>
             </div>
@@ -357,8 +418,8 @@ export default function Home() {
 
         {/* History Sidebar */}
         {showHistory && (
-          <aside className="fixed inset-y-0 right-0 w-full md:w-1/4 bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-lg p-4 overflow-y-auto z-40 border-l border-gray-200 dark:border-gray-700">
-            <div className="flex items-center justify-between pl-2 py-4 bg-gray-100 dark:bg-gray-700 mb-4 rounded-lg sticky top-0 z-10">
+          <aside className="fixed right-0 w-full md:w-1/4 h-full bg-white/80 dark:bg-gray-800/80 backdrop-blur shadow-lg p-4 overflow-y-auto z-50 border-l border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between pl-2 py-4 bg-gray-100 dark:bg-gray-700 mb-4 rounded-lg sticky top-0">
               <div className="flex items-center gap-2">
                 <ClockIcon className="h-6 w-6 text-yellow-500" />
                 <h2 className="text-xl font-extrabold shrink-0 bg-gradient-to-r from-orange-600 to-orange-400 bg-clip-text text-transparent">Content History</h2>
@@ -380,5 +441,6 @@ export default function Home() {
         )}
       </div>
     </main>
+    </>
   );
 }
