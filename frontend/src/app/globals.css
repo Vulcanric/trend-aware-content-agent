@@ -55,8 +55,12 @@ body {
   transition: background-color 0.2s ease-in-out, border-color 0.2s ease-in-out, color 0.2s ease-in-out;
 }
 
-button, a {
-  cursor: pointer !important;
+a {
+  color: var(--primary);
+}
+
+li {
+  list-style: disc;
 }
 
 /* Custom scrollbar */
@@ -87,6 +91,6 @@ button, a {
 
 /* Selection styles */
 ::selection {
-  background-color: var(--primary);
-  color: white;
+  color: black;
+  text-decoration: underline;
 }
