@@ -344,7 +344,7 @@ export default function Home() {
                 <div className='prose max-w-full pt-1 text-lg dark:prose-invert flex flex-col'>
                   {
                     isGeneratingContent ? (
-                      <span className='animate-pulse'>Hold up! I'm crunching on the latest data to give you the best content.</span>
+                      <span className='animate-pulse'>Hold up! I&apos;m crunching on the latest data to give you the best content.</span>
                     ) : content && (
                       <>
                       <div className="w-[90%] whitespace-pre-wrap overflow-x-scroll bg-gray-100/10 dark:bg-gray-800/10 backdrop-blur text-gray-700 text-base dark:text-gray-300"><Markdown remarkPlugins={[remarkGfm]}>{content}</Markdown></div>
