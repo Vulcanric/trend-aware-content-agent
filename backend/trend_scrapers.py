@@ -2,7 +2,6 @@
 """
 import json
 from bs4 import BeautifulSoup
-from agents import trend_extractor
 from typing import List
 
 
@@ -18,9 +17,6 @@ def get_reddit_trending(raw_data) -> List[str]:
     titles = [post["data"]["title"] for post in data["data"]["children"]]
     print("REDDIT: ", titles)
     return titles
-    # json_trends = trend_extractor(raw_data)
-    # trends = json.loads(json_trends)
-    # return trends
 
 
 def get_youtube_trending(raw_data: str) -> List[str]:
@@ -39,8 +35,9 @@ def get_youtube_trending(raw_data: str) -> List[str]:
             end = script.text.rfind("};") + 1
             raw_json = script.text[start:end]
             data = json.loads(raw_json)
-            videos = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]\
-                ["content"]["sectionListRenderer"]["contents"][0]["itemSectionRenderer"]["contents"]
+            videos = data["contents"]["twoColumnBrowseResultsRenderer"]["tabs"][0]["tabRenderer"]["content"]["sectionListRenderer"]\
+              ["contents"][0]["itemSectionRenderer"]["contents"][0]["shelfRenderer"]["content"]["expandedShelfContentsRenderer"]\
+                ["items"]
             for item in videos:
                 try:
                     title = item["videoRenderer"]["title"]["runs"][0]["text"]
