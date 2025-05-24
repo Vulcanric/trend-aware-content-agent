@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "dotenvx run -- next dev --turbopack",
+    "build": "dotenvx run -- next build",
+    "start": "dotenvx run -- next start",
+    "lint": "dotenvx run -- next lint"
   },
   "dependencies": {
+    "@dotenvx/dotenvx": "^1.44.1",
     "@floating-ui/react": "^0.27.8",
     "@headlessui/react": "^2.2.3",
     "@heroicons/react": "^2.2.0",
