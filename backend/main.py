@@ -14,7 +14,7 @@ api = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "http://localhost:8080",
+    "https://trendy-ai.up.railway.app:8080",
     "http://localhost:8501",
 ]
 
