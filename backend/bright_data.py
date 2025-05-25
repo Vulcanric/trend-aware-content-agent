@@ -3,7 +3,7 @@ import os
 import httpx
 from functools import cache
 from dotenv import load_dotenv
-from typing import Callable
+from typing import Callable, Dict, Optional
 
 
 load_dotenv()
@@ -58,19 +58,20 @@ def search_with_bright_data(prompt: str) -> str:
 
 
 async def scrape_with_bright_data(
-        session: httpx.AsyncClient, url: str, processor: Callable
+        session: httpx.AsyncClient, country_code: Optional[str], url: str, processor: Callable
     ) -> str:
     """ Scrape web data with Bright Data's MCP web unlocker API.
         Process the data and return the output
     """
     print(f"Started Task: {url}")
+    cc = country_code
 
     payload = {
         "method": "GET",
         "url": url,
         "zone": BRIGHT_DATA_PROXY_ZONE,
         "format": "raw",
-        "country": "us"
+        "country": cc.lower() if cc else ""
     }
     errors = [
         "Request Failed (bad_endpoint): Requested site is not available for immediate access mode in accordance with robots.txt. Ask your account manager to get full access for targeting this site"
@@ -81,7 +82,7 @@ async def scrape_with_bright_data(
         print("STATUS: ", res.status_code)
         if res.is_error or res.text in errors:
             print(f"Bright Data error: {res.status_code} - {res.text}")
-            res = await session.get(url)
+            res = await session.get(f"{url}{f"&gl={cc}" if cc else ""}")
 
         res.raise_for_status()
         return processor(res.text)
@@ -92,6 +93,22 @@ async def scrape_with_bright_data(
 
     print(f"Ended Task: {url}")
 
+
+def get_user_country(host: str) -> Dict:
+    """ Get user country based on IP
+    """
+    payload = {
+        "fields": "status,countryCode",
+    }
+    json = {}
+    try:
+        res = httpx.get(f"http://ip-api.com/json/{host}", payload=payload)
+        res.raise_for_status()
+        json = res.json()
+    except httpx.HTTPStatusError:
+        pass
+    finally:
+        return json
 
 # async def scrape_with_bright_data(trend_scrapers: List[Dict[str, callable | Dict]]) -> str:
 #     """ Scrape web apps with Bright Data's MCP web unlocker API
