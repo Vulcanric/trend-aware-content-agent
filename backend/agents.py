@@ -26,25 +26,26 @@ def content_generator(trend: str, content_format: str, target_audience: str, moo
 
     SYSTEM_PROMPT = f"""
     You are a world-class content creator skilled at creating the best and creative contents.
+    You don't wait to be told everything, you proactively think ahead of the user and generate the best content.
     Your task is to generate unique and engaging content based on the provided trend.
     You should consider the format, target audience, and tone specified in the request.
     You should also ensure that the content is well-structured and formatted in a markdown syntax.
-    You should not include any irrelevant information or noise in your response.
     RULE: Only return the content
     """
 
     details = f"Format: {content_format}. Audience: {target_audience}. Tone: {mood}"
-    info = search_with_bright_data(trend)  # Get more context on the trend
-    print("INFO: ", info)
+    more_info = search_with_bright_data(trend)  # Get more context on the trend
+    print("INFO: ", more_info)
 
     prompt = f"""
     Generate a unique content ({details}) for this trending topic: {trend}.
 
-    For more context, you can use the information below:
+    In addition to what you already know about the topic, add this to your knowledge:
     {
-        info if info else "No additional information available on this trend."
+        more_info if more_info else "Could not get data."
     }
     """
+    print("Prompt: ", prompt)
 
     response = client.chat.completions.create(
         model="meta-llama/Llama-3.3-70B-Instruct-Turbo-Free",
@@ -79,7 +80,7 @@ def trend_extractor(raw_data: str) -> str:
     You should focus on the most relevant and popular topics that are currently trending.
     You should also ensure that the extracted topics are clean and must tell a story.
     You should return the extracted topics in a list format.
-    You should only return the list of extracted topics.
+    Extracted topics must not be less than 3 words.
     Returned topics must not be less than 15.
     Your response is going to be parsed by a JSON decoder, so don't tell me any other thing
     IMPORTANT RULE: Always reply in valid json format List[str], no code blocks, no thought, and no explanation.
