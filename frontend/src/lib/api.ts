@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { Trend, GenerateContentRequest, GenerateContentResponse } from '@/types';
 
-const API_BASE_URL = process.env.API_BASE_URL || 'https://trendybackend.railway.internal/api';
+const API_BASE_URL = process.env.API_BASE_URL || 'http://trendybackend.railway.internal/api';
 console.log("API BASE", API_BASE_URL);
 
 const api = axios.create({
