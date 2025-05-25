@@ -17,14 +17,14 @@ BRIGHT_DATA_HEADERS = {
 }
 
 
-@cache
+# @cache
 def search_with_bright_data(prompt: str) -> str:
     """ Search the web using Bright Data's SERP API with AI integration
         Retrieve timely and relevant web data on the issued prompt.
     """
     print("Search with Bright Data: Running")
 
-    PROMPT = f"Get me the most up-to-date information on this: {prompt}"
+    PROMPT = f"Current information on: {prompt}"
     PARAMS = {
         "dataset_id": "gd_m7aof0k82r803d5bjm",
         "include_errors": False
@@ -32,7 +32,7 @@ def search_with_bright_data(prompt: str) -> str:
     payload = {
         "input": [
             {
-                "url": "https://chatgpt.com/",
+                "url": "https://chatgpt.com/?hint=search",
                 "prompt": PROMPT,
                 "sources_not_required": True,
                 "web_search": True
@@ -47,12 +47,16 @@ def search_with_bright_data(prompt: str) -> str:
             f"{BRIGHT_DATA_API}/datasets/v3/scrape",
             json=payload,
             params=PARAMS,
-            headers=BRIGHT_DATA_HEADERS
+            headers=BRIGHT_DATA_HEADERS,
+            timeout=120.0
         )
+        print("Search Result: ", res.text, res.json())
         res.raise_for_status()
         result = res.json().get("answer_text_markdown")
     except httpx.HTTPStatusError as e:
         print(f"HTTP error occured: {e.response.status_code} - {e.response.text}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
     finally:
         return result
 
@@ -94,6 +98,7 @@ async def scrape_with_bright_data(
     print(f"Ended Task: {url}")
 
 
+@cache
 def get_user_country(host: str) -> Dict:
     """ Get user country based on IP
     """
