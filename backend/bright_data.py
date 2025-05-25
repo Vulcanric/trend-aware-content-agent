@@ -17,7 +17,7 @@ BRIGHT_DATA_HEADERS = {
 }
 
 
-# @cache
+@cache
 def search_with_bright_data(prompt: str) -> str:
     """ Search the web using Bright Data's SERP API with AI integration
         Retrieve timely and relevant web data on the issued prompt.
