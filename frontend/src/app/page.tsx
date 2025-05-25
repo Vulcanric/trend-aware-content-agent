@@ -251,7 +251,7 @@ export default function Home() {
             >
               {isFetchingTrends ? (
                 <>
-                <span className='border-2 border-t-transparent border-white size-4 rounded-full animate-spin' />
+                <span className='border-2 border-t-transparent border-black dark:border-white size-4 rounded-full animate-spin' />
                 Refreshing...
                 </>
               ) : (
