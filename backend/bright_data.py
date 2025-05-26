@@ -24,7 +24,7 @@ def search_with_bright_data(prompt: str) -> str:
     """
     print("Search with Bright Data: Running")
 
-    PROMPT = f"Current information on: {prompt}"
+    PROMPT = f"Current insights into: {prompt}"
     PARAMS = {
         "dataset_id": "gd_m7aof0k82r803d5bjm",
         "include_errors": False
