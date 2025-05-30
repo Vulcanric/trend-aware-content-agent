@@ -27,15 +27,15 @@ def search_with_bright_data(prompt: str) -> str:
     PROMPT = f"Current insights into: {prompt}"
     PARAMS = {
         "dataset_id": "gd_m7aof0k82r803d5bjm",
-        "include_errors": False
+        "include_errors": "false"
     }
     payload = {
         "input": [
             {
                 "url": "https://chatgpt.com/",
                 "prompt": PROMPT,
-                "sources_not_required": True,
-                "web_search": True
+                "require_sources": "false",
+                "country": ""  # Optional: specify country code if needed 
             }
         ],
         "custom_output_fields": ["answer_text_markdown"]
