@@ -37,7 +37,7 @@ Built for the [Bright Data Real-Time AI Agents Challenge](https://dev.to/devteam
 | --- | --- |
 | Frontend | Next.js |
 | Backend | FastAPI |
-| AI Engine | Llama 4 |
+| AI Engine | Llama 3.3 via [Together.ai](https://www.together.ai/) |
 | Data Layer | Bright Data MCP + Reddit + Youtube |
 | Deployment | Docker + Docker Compose |
 
