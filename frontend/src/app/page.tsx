@@ -203,7 +203,7 @@ export default function Home() {
       <div className="w-full flex gap-0 h-full min-h-0">
         {/* Sidebar (Left) */}
         <aside
-          className={`w-full md:w-75 h-full bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow md:sticky md:top-0 md:left-0 md:rounded-none
+          className={`w-full md:w-1/4 h-full bg-white/90 dark:bg-gray-800/90 backdrop-blur shadow md:sticky md:top-0 md:left-0 md:rounded-none
             md:rounded-r-xl border-r border-gray-500 dark:border-gray-700 fixed z-50
             ${showTrendSidebar ? 'translate-x-0' : '-translate-x-full md:-translate-x-full'}`
           }
