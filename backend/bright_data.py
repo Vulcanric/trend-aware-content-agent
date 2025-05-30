@@ -32,7 +32,7 @@ def search_with_bright_data(prompt: str) -> str:
     payload = {
         "input": [
             {
-                "url": "https://chatgpt.com/?hint=search",
+                "url": "https://chatgpt.com/",
                 "prompt": PROMPT,
                 "sources_not_required": True,
                 "web_search": True
