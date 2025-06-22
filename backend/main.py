@@ -14,7 +14,7 @@ api = FastAPI()
 
 origins = [
     "http://localhost:3000",
-    "https://trendy-ai.up.railway.app",
+    "https://trendicontent.vercel.app",
     "https://trendy*",
     "http://localhost:8501",
 ]
@@ -26,6 +26,12 @@ api.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@api.get("/")
+def read_root():
+    """ Root endpoint to check if the API is running """
+    return {"message": "Welcome to the Trend-Aware Content Generator API!"}
+
 
 @api.get("/api/trends")
 async def get_trends(request: Request):
